@@ -1297,7 +1297,7 @@ def SaveConfigFile(
     folder_path = os.path.dirname(file_path)
 
     # Check if the folder exists
-    if not os.path.exists(folder_path):
+    if folder_path and not os.path.exists(folder_path):
         # If not, create the folder
         os.makedirs(os.path.dirname(folder_path))
         log.info(f"Creating folder {folder_path} for the configuration file...")
