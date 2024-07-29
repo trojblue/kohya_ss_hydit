@@ -60,6 +60,8 @@ def save_configuration(
     v2,
     v_parameterization,
     sdxl,
+    hunyuan11,
+    hunyuan12,
     logging_dir,
     train_data_dir,
     reg_data_dir,
@@ -84,6 +86,10 @@ def save_configuration(
     caption_extension,
     enable_bucket,
     gradient_checkpointing,
+    deepspeed,
+    zero_stage,
+    offload_optimizer_device,
+    offload_param_device,
     full_fp16,
     full_bf16,
     no_token_padding,
@@ -218,6 +224,8 @@ def open_configuration(
     v2,
     v_parameterization,
     sdxl,
+    hunyuan11,
+    hunyuan12,
     logging_dir,
     train_data_dir,
     reg_data_dir,
@@ -242,6 +250,10 @@ def open_configuration(
     caption_extension,
     enable_bucket,
     gradient_checkpointing,
+    deepspeed,
+    zero_stage,
+    offload_optimizer_device,
+    offload_param_device,
     full_fp16,
     full_bf16,
     no_token_padding,
@@ -371,6 +383,8 @@ def train_model(
     v2,
     v_parameterization,
     sdxl,
+    hunyuan11,
+    hunyuan12,
     logging_dir,
     train_data_dir,
     reg_data_dir,
@@ -395,6 +409,10 @@ def train_model(
     caption_extension,
     enable_bucket,
     gradient_checkpointing,
+    deepspeed,
+    zero_stage,
+    offload_optimizer_device,
+    offload_param_device,
     full_fp16,
     full_bf16,
     no_token_padding,
@@ -700,7 +718,9 @@ def train_model(
         extra_accelerate_launch_args=extra_accelerate_launch_args,
     )
 
-    if sdxl:
+    if hunyuan11 or hunyuan12:
+        run_cmd.append(rf'{scriptdir}/sd-scripts/hunyuan_train.py')
+    elif sdxl:
         run_cmd.append(rf'{scriptdir}/sd-scripts/sdxl_train.py')
     else:
         run_cmd.append(rf"{scriptdir}/sd-scripts/train_db.py")
@@ -751,13 +771,13 @@ def train_model(
         "keep_tokens": int(keep_tokens),
         "learning_rate": learning_rate,  # both for sd1.5 and sdxl
         "learning_rate_te": (
-            learning_rate_te if not sdxl and not 0 else None
+            learning_rate_te if not sdxl and not hunyuan11 and not 0 else None
         ),  # only for sd1.5 and not 0
         "learning_rate_te1": (
-            learning_rate_te1 if sdxl and not 0 else None
+            learning_rate_te1 if (sdxl or hunyuan11) and not 0 else None
         ),  # only for sdxl and not 0
         "learning_rate_te2": (
-            learning_rate_te2 if sdxl and not 0 else None
+            learning_rate_te2 if (sdxl or hunyuan11) and not 0 else None
         ),  # only for sdxl and not 0
         "logging_dir": logging_dir,
         "log_tracker_config": log_tracker_config,
@@ -849,6 +869,20 @@ def train_model(
         "weighted_captions": weighted_captions,
         "xformers": True if xformers == "xformers" else None,
     }
+    if hunyuan11:
+        config_toml_data["use_extra_cond"] = True
+        config_toml_data["beta_end"] = 0.03
+    elif hunyuan12:
+        config_toml_data["use_extra_cond"] = False
+        config_toml_data["beta_end"] = 0.018
+    # 是否启用deepspeed
+    if deepspeed:
+        config_toml_data["deepspeed"] = True
+        config_toml_data["zero_stage"] = zero_stage
+        if offload_optimizer_device == "cpu":
+            config_toml_data["offload_optimizer_device"] = offload_optimizer_device
+        if offload_param_device == "cpu":
+            config_toml_data["offload_param_device"] = offload_param_device
 
     # Given dictionary `config_toml_data`
     # Remove all values = "" and values = False
@@ -1011,6 +1045,8 @@ def dreambooth_tab(
             source_model.v2,
             source_model.v_parameterization,
             source_model.sdxl_checkbox,
+            source_model.hunyuan11_checkbox,
+            source_model.hunyuan12_checkbox,
             folders.logging_dir,
             source_model.train_data_dir,
             folders.reg_data_dir,
@@ -1035,6 +1071,10 @@ def dreambooth_tab(
             basic_training.caption_extension,
             basic_training.enable_bucket,
             advanced_training.gradient_checkpointing,
+            advanced_training.deepspeed,
+            advanced_training.zero_stage,
+            advanced_training.offload_optimizer_device,
+            advanced_training.offload_param_device,
             advanced_training.full_fp16,
             advanced_training.full_bf16,
             advanced_training.no_token_padding,
@@ -1129,6 +1169,7 @@ def dreambooth_tab(
             metadata.metadata_tags,
             metadata.metadata_title,
         ]
+
 
         configuration.button_open_config.click(
             open_configuration,

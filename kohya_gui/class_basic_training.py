@@ -337,8 +337,8 @@ class BasicTraining:
             # Initialize the maximum resolution textbox
             self.max_resolution = gr.Textbox(
                 label="Max resolution",
-                value=self.config.get("basic.max_resolution", "512,512"),
-                placeholder="512,512",
+                value=self.config.get("basic.max_resolution", "1024,1024"),
+                placeholder="1024,1024",
             )
             # Initialize the stop text encoder training slider
             self.stop_text_encoder_training = gr.Slider(

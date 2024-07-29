@@ -172,7 +172,7 @@ class AdvancedTraining:
         with gr.Row():
             self.save_every_n_steps = gr.Number(
                 label="Save every N steps",
-                value=self.config.get("advanced.save_every_n_steps", 0),
+                value=self.config.get("advanced.save_every_n_steps", 50),
                 precision=0,
                 info="(Optional) The model is saved every specified steps",
             )
@@ -272,6 +272,35 @@ class AdvancedTraining:
                 label="Memory efficient attention",
                 value=self.config.get("advanced.mem_eff_attn", False),
             )
+        with gr.Row():
+            self.deepspeed = gr.Checkbox(
+                label="Enable deepspeed",
+                value=self.config.get("advanced.deepspeed", False),
+            )
+            self.zero_stage = gr.Slider(
+                label="Zero stage",
+                value=self.config.get("advanced.zero_stage", 2),
+                step=1,
+                minimum=1,
+                maximum=3,
+            )
+            self.offload_optimizer_device = gr.Dropdown(
+                label="Offload optimizer device",
+                choices=[
+                    "None",
+                    "cpu",
+                ],
+                value=self.config.get("advanced.offload_optimizer_device", "cpu"),
+            )
+            self.offload_param_device = gr.Dropdown(
+                label="Offload param device",
+                choices=[
+                    "None",
+                    "cpu",
+                ],
+                value=self.config.get("advanced.offload_param_device", "cpu"),
+            )
+
         with gr.Row():
             self.xformers = gr.Dropdown(
                 label="CrossAttention",

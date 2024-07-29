@@ -77,6 +77,8 @@ def save_configuration(
     v2,
     v_parameterization,
     sdxl,
+    hunyuan11,
+    hunyuan12,
     logging_dir,
     train_data_dir,
     reg_data_dir,
@@ -282,6 +284,8 @@ def open_configuration(
     v2,
     v_parameterization,
     sdxl,
+    hunyuan11,
+    hunyuan12,
     logging_dir,
     train_data_dir,
     reg_data_dir,
@@ -517,6 +521,8 @@ def train_model(
     v2,
     v_parameterization,
     sdxl,
+    hunyuan11,
+    hunyuan12,
     logging_dir,
     train_data_dir,
     reg_data_dir,
@@ -943,7 +949,9 @@ def train_model(
         extra_accelerate_launch_args=extra_accelerate_launch_args,
     )
 
-    if sdxl:
+    if hunyuan11 or hunyuan12:
+        run_cmd.append(rf"{scriptdir}/sd-scripts/hunyuan_train_network.py")
+    elif sdxl:
         run_cmd.append(rf"{scriptdir}/sd-scripts/sdxl_train_network.py")
     else:
         run_cmd.append(rf"{scriptdir}/sd-scripts/train_network.py")
@@ -1233,6 +1241,13 @@ def train_model(
         "weighted_captions": weighted_captions,
         "xformers": True if xformers == "xformers" else None,
     }
+    # Extra parameters for Hunyuan models
+    if hunyuan11:
+        config_toml_data["use_extra_cond"] = True
+        config_toml_data["beta_end"] = 0.03
+    elif hunyuan12:
+        config_toml_data["use_extra_cond"] = False
+        config_toml_data["beta_end"] = 0.018
 
     # Given dictionary `config_toml_data`
     # Remove all values = ""
@@ -2165,6 +2180,8 @@ def lora_tab(
             source_model.v2,
             source_model.v_parameterization,
             source_model.sdxl_checkbox,
+            source_model.hunyuan11_checkbox,
+            source_model.hunyuan12_checkbox,
             folders.logging_dir,
             source_model.train_data_dir,
             folders.reg_data_dir,

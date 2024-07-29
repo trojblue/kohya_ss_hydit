@@ -58,8 +58,13 @@ SDXL_MODELS = [
     "stabilityai/stable-diffusion-xl-refiner-1.0",
 ]
 
+HUNYUAN_MODELS = [
+    # "Tencent-Hunyuan/HunyuanDiT-v1.1",
+    # "KBlueLeaf/HunYuanDiT-V1.1-fp16-pruned",
+]
+
 # define a list of substrings to search for
-ALL_PRESET_MODELS = V2_BASE_MODELS + V_PARAMETERIZATION_MODELS + V1_MODELS + SDXL_MODELS
+ALL_PRESET_MODELS = V2_BASE_MODELS + V_PARAMETERIZATION_MODELS + V1_MODELS + SDXL_MODELS + HUNYUAN_MODELS
 
 ENV_EXCLUSION = ["COLAB_GPU", "RUNPOD_POD_ID"]
 
@@ -949,17 +954,36 @@ def set_pretrained_model_name_or_path_input(
         tuple: A tuple containing the Dropdown widget, v2 checkbox, v_parameterization checkbox,
                and sdxl checkbox.
     """
+    # Check if the given pretrained_model_name_or_path is in the list of HUNYUAN models
+    if pretrained_model_name_or_path in HUNYUAN_MODELS:
+        log.info("HUNYUAN model selected.")
+        v2 = gr.Checkbox(value=False, visible=False)
+        v_parameterization = gr.Checkbox(value=False, visible=False)
+        sdxl = gr.Checkbox(value=False, visible=False)
+        hunyuan11 = gr.Checkbox(value=False, visible=False)
+        hunyuan12 = gr.Checkbox(value=True, visible=False)
+        return (
+            gr.Dropdown(),
+            v2,
+            v_parameterization,
+            sdxl,
+            hunyuan11,
+            hunyuan12
+        )
+
     # Check if the given pretrained_model_name_or_path is in the list of SDXL models
     if pretrained_model_name_or_path in SDXL_MODELS:
         log.info("SDXL model selected. Setting sdxl parameters")
         v2 = gr.Checkbox(value=False, visible=False)
         v_parameterization = gr.Checkbox(value=False, visible=False)
         sdxl = gr.Checkbox(value=True, visible=False)
+        hunyuan11 = gr.Checkbox(value=False, visible=False)
         return (
             gr.Dropdown(),
             v2,
             v_parameterization,
             sdxl,
+            hunyuan11
         )
 
     # Check if the given pretrained_model_name_or_path is in the list of V2 base models
@@ -968,11 +992,15 @@ def set_pretrained_model_name_or_path_input(
         v2 = gr.Checkbox(value=True, visible=False)
         v_parameterization = gr.Checkbox(value=False, visible=False)
         sdxl = gr.Checkbox(value=False, visible=False)
+        hunyuan11 = gr.Checkbox(value=False, visible=False)
+        hunyuan12 = gr.Checkbox(value=False, visible=False)
         return (
             gr.Dropdown(),
             v2,
             v_parameterization,
             sdxl,
+            hunyuan11,
+            hunyuan12
         )
 
     # Check if the given pretrained_model_name_or_path is in the list of V parameterization models
@@ -983,11 +1011,15 @@ def set_pretrained_model_name_or_path_input(
         v2 = gr.Checkbox(value=True, visible=False)
         v_parameterization = gr.Checkbox(value=True, visible=False)
         sdxl = gr.Checkbox(value=False, visible=False)
+        hunyuan11 = gr.Checkbox(value=False, visible=False),
+        hunyuan12 = gr.Checkbox(value=False, visible=False)
         return (
             gr.Dropdown(),
             v2,
             v_parameterization,
             sdxl,
+            hunyuan11,
+            hunyuan12
         )
 
     # Check if the given pretrained_model_name_or_path is in the list of V1 models
@@ -996,17 +1028,23 @@ def set_pretrained_model_name_or_path_input(
         v2 = gr.Checkbox(value=False, visible=False)
         v_parameterization = gr.Checkbox(value=False, visible=False)
         sdxl = gr.Checkbox(value=False, visible=False)
+        hunyuan11 = gr.Checkbox(value=False, visible=False)
+        hunyuan12 = gr.Checkbox(value=False, visible=False)
         return (
             gr.Dropdown(),
             v2,
             v_parameterization,
             sdxl,
+            hunyuan11,
+            hunyuan12
         )
 
     # Check if the model_list is set to 'custom'
     v2 = gr.Checkbox(visible=True)
     v_parameterization = gr.Checkbox(visible=True)
     sdxl = gr.Checkbox(visible=True)
+    hunyuan11 = gr.Checkbox(visible=True)
+    hunyuan12 = gr.Checkbox(visible=True)
 
     # If a refresh method is provided, use it to update the choices for the Dropdown widget
     if refresh_method is not None:
@@ -1020,6 +1058,8 @@ def set_pretrained_model_name_or_path_input(
         v2,
         v_parameterization,
         sdxl,
+        hunyuan11,
+        hunyuan12
     )
 
 

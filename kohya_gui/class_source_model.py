@@ -245,7 +245,7 @@ class SourceModel:
                     with gr.Column():
                         with gr.Row():
                             self.v2 = gr.Checkbox(
-                                label="v2", value=False, visible=False, min_width=60
+                                label="v2", value=False, visible=False, min_width=40
                             )
                             self.v_parameterization = gr.Checkbox(
                                 label="v_parameterization",
@@ -255,6 +255,18 @@ class SourceModel:
                             )
                             self.sdxl_checkbox = gr.Checkbox(
                                 label="SDXL",
+                                value=False,
+                                visible=False,
+                                min_width=40,
+                            )
+                            self.hunyuan11_checkbox = gr.Checkbox(
+                                label="HunYuan 1.1",
+                                value=False,
+                                visible=False,
+                                min_width=60,
+                            )
+                            self.hunyuan12_checkbox = gr.Checkbox(
+                                label="HunYuan 1.2",
                                 value=False,
                                 visible=False,
                                 min_width=60,
@@ -274,7 +286,7 @@ class SourceModel:
                     self.save_model_as = gr.Radio(
                         save_model_as_choices,
                         label="Save trained model as",
-                        value=self.config.get("model.save_model_as", "safetensors"),
+                        value=self.config.get("model.save_model_as", "ckpt"),
                     )
                     self.save_precision = gr.Radio(
                         save_precision_choices,
@@ -294,6 +306,8 @@ class SourceModel:
                         self.v2,
                         self.v_parameterization,
                         self.sdxl_checkbox,
+                        self.hunyuan11_checkbox,
+                        self.hunyuan12_checkbox
                     ],
                     show_progress=False,
                 )
